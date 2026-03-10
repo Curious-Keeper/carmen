@@ -50,9 +50,7 @@ class TestRejectPrivateIP:
             _reject_private_ip("::ffff:192.168.1.1")
 
     def test_rejects_hostname(self):
-        with pytest.raises(
-            ValueError, match="Only IP addresses"
-        ):
+        with pytest.raises(ValueError, match="Only IP addresses"):
             _reject_private_ip("evil.example.com")
 
     def test_accepts_public_ipv4(self):

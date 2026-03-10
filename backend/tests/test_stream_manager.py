@@ -54,16 +54,12 @@ class TestStartStream:
     @patch("stream_manager._wait_for_segment", return_value=True)
     @patch("stream_manager.subprocess.Popen")
     @patch("stream_manager._probe_url", return_value=True)
-    def test_concurrent_cap(
-        self, mock_probe, mock_popen, mock_wait
-    ):
+    def test_concurrent_cap(self, mock_probe, mock_popen, mock_wait):
         mock_popen.return_value = MagicMock()
 
         ids = []
         for i in range(MAX_CONCURRENT_STREAMS):
-            sid = start_stream(
-                f"8.8.{i // 256}.{i % 256}", 554, "_generic"
-            )
+            sid = start_stream(f"8.8.{i // 256}.{i % 256}", 554, "_generic")
             assert sid is not None
             ids.append(sid)
 
@@ -77,22 +73,24 @@ class TestStartStream:
     @patch("stream_manager._wait_for_segment", return_value=True)
     @patch("stream_manager.subprocess.Popen")
     @patch("stream_manager._probe_url", return_value=True)
-    def test_per_ip_cap(
-        self, mock_probe, mock_popen, mock_wait
-    ):
+    def test_per_ip_cap(self, mock_probe, mock_popen, mock_wait):
         mock_popen.return_value = MagicMock()
 
         ids = []
         for i in range(MAX_STREAMS_PER_IP):
             sid = start_stream(
-                f"8.8.8.{i}", 554, "_generic",
+                f"8.8.8.{i}",
+                554,
+                "_generic",
                 requester_ip="10.0.0.1",
             )
             assert sid is not None
             ids.append(sid)
 
         result = start_stream(
-            "8.8.8.100", 554, "_generic",
+            "8.8.8.100",
+            554,
+            "_generic",
             requester_ip="10.0.0.1",
         )
         assert result is None
@@ -103,9 +101,7 @@ class TestStartStream:
     @patch("stream_manager._probe_url", return_value=True)
     @patch("stream_manager._wait_for_segment", return_value=False)
     @patch("stream_manager.subprocess.Popen")
-    def test_no_segments_produced(
-        self, mock_popen, mock_wait, mock_probe
-    ):
+    def test_no_segments_produced(self, mock_popen, mock_wait, mock_probe):
         mock_proc = MagicMock()
         mock_popen.return_value = mock_proc
 
@@ -121,9 +117,7 @@ class TestStopStream:
     @patch("stream_manager._wait_for_segment", return_value=True)
     @patch("stream_manager.subprocess.Popen")
     @patch("stream_manager._probe_url", return_value=True)
-    def test_stop_cleans_up(
-        self, mock_probe, mock_popen, mock_wait
-    ):
+    def test_stop_cleans_up(self, mock_probe, mock_popen, mock_wait):
         mock_proc = MagicMock()
         mock_proc.wait.return_value = 0
         mock_popen.return_value = mock_proc
@@ -144,9 +138,7 @@ class TestGetStreamFile:
     @patch("stream_manager._wait_for_segment", return_value=True)
     @patch("stream_manager.subprocess.Popen")
     @patch("stream_manager._probe_url", return_value=True)
-    def test_missing_file(
-        self, mock_probe, mock_popen, mock_wait
-    ):
+    def test_missing_file(self, mock_probe, mock_popen, mock_wait):
         mock_popen.return_value = MagicMock()
 
         sid = start_stream("8.8.8.8", 554, "_generic")

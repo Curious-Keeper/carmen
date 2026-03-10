@@ -45,9 +45,7 @@ def geocode_location(query: str) -> dict | None:
             return None
 
     if not results:
-        log.warning(
-            "Nominatim returned no results for: %s", query
-        )
+        log.warning("Nominatim returned no results for: %s", query)
         return None
 
     top = results[0]

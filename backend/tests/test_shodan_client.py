@@ -17,16 +17,10 @@ class TestClassifyBrand:
         assert _classify_brand({"product": "Hikvision"}) == "Hikvision"
 
     def test_dahua_in_data(self):
-        assert (
-            _classify_brand({"data": "Server: Dahua"})
-            == "Dahua"
-        )
+        assert _classify_brand({"data": "Server: Dahua"}) == "Dahua"
 
     def test_mjpg_streamer(self):
-        assert (
-            _classify_brand({"info": "MJPG-Streamer"})
-            == "MJPG-Streamer"
-        )
+        assert _classify_brand({"info": "MJPG-Streamer"}) == "MJPG-Streamer"
 
     def test_unknown(self):
         assert _classify_brand({"product": "nginx"}) == "Unknown"
@@ -36,9 +30,7 @@ class TestClassifyBrand:
 
     def test_none_fields(self):
         assert (
-            _classify_brand(
-                {"product": None, "info": None, "data": None}
-            )
+            _classify_brand({"product": None, "info": None, "data": None})
             == "Unknown"
         )
 
@@ -134,9 +126,7 @@ class TestShodanClientSearch:
             ]
         )
         client = ShodanClient("test-key")
-        results = client.search_cameras(
-            lat=40.7, lng=-74.0, radius_miles=5
-        )
+        results = client.search_cameras(lat=40.7, lng=-74.0, radius_miles=5)
         assert len(results) == 1
         assert results[0]["ip"] == "1.2.3.4"
 
@@ -151,9 +141,7 @@ class TestShodanClientSearch:
         }
         self._mock_shodan([dup, dup, dup])
         client = ShodanClient("test-key")
-        results = client.search_cameras(
-            lat=40.7, lng=-74.0, radius_miles=5
-        )
+        results = client.search_cameras(lat=40.7, lng=-74.0, radius_miles=5)
         assert len(results) == 1
 
     def test_401_raises(self):
@@ -162,9 +150,7 @@ class TestShodanClientSearch:
         )
         client = ShodanClient("bad-key")
         with pytest.raises(httpx.HTTPStatusError):
-            client.search_cameras(
-                lat=40.7, lng=-74.0, radius_miles=5
-            )
+            client.search_cameras(lat=40.7, lng=-74.0, radius_miles=5)
 
     def test_403_raises(self):
         respx.get(SHODAN_SEARCH_URL).mock(
@@ -172,9 +158,7 @@ class TestShodanClientSearch:
         )
         client = ShodanClient("free-key")
         with pytest.raises(httpx.HTTPStatusError):
-            client.search_cameras(
-                lat=40.7, lng=-74.0, radius_miles=5
-            )
+            client.search_cameras(lat=40.7, lng=-74.0, radius_miles=5)
 
     def test_429_raises(self):
         respx.get(SHODAN_SEARCH_URL).mock(
@@ -182,28 +166,20 @@ class TestShodanClientSearch:
         )
         client = ShodanClient("key")
         with pytest.raises(httpx.HTTPStatusError):
-            client.search_cameras(
-                lat=40.7, lng=-74.0, radius_miles=5
-            )
+            client.search_cameras(lat=40.7, lng=-74.0, radius_miles=5)
 
     def test_500_skipped(self):
         respx.get(SHODAN_SEARCH_URL).mock(
-            return_value=httpx.Response(
-                500, json={"error": "bad query"}
-            )
+            return_value=httpx.Response(500, json={"error": "bad query"})
         )
         client = ShodanClient("key")
-        results = client.search_cameras(
-            lat=40.7, lng=-74.0, radius_miles=5
-        )
+        results = client.search_cameras(lat=40.7, lng=-74.0, radius_miles=5)
         assert results == []
 
     def test_empty_results(self):
         self._mock_shodan([])
         client = ShodanClient("key")
-        results = client.search_cameras(
-            lat=40.7, lng=-74.0, radius_miles=5
-        )
+        results = client.search_cameras(lat=40.7, lng=-74.0, radius_miles=5)
         assert results == []
 
     def test_max_results_cap(self):

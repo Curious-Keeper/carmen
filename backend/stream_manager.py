@@ -23,12 +23,8 @@ log = logging.getLogger(__name__)
 STREAM_TIMEOUT_S = 90
 SEGMENT_READY_TIMEOUT = 8
 SEGMENT_POLL_INTERVAL = 0.2
-MAX_CONCURRENT_STREAMS = int(
-    os.environ.get("MAX_CONCURRENT_STREAMS", "10")
-)
-MAX_STREAMS_PER_IP = int(
-    os.environ.get("MAX_STREAMS_PER_IP", "3")
-)
+MAX_CONCURRENT_STREAMS = int(os.environ.get("MAX_CONCURRENT_STREAMS", "10"))
+MAX_STREAMS_PER_IP = int(os.environ.get("MAX_STREAMS_PER_IP", "3"))
 
 # Common RTSP stream paths per brand, tried in order.
 RTSP_PATHS: dict[str, list[str]] = {
@@ -83,10 +79,7 @@ def _reject_private_ip(ip: str) -> bool:
     except ValueError:
         return True
 
-    if (
-        isinstance(addr, ipaddress.IPv6Address)
-        and addr.ipv4_mapped is not None
-    ):
+    if isinstance(addr, ipaddress.IPv6Address) and addr.ipv4_mapped is not None:
         addr = addr.ipv4_mapped
 
     return (
@@ -99,9 +92,7 @@ def _reject_private_ip(ip: str) -> bool:
     )
 
 
-def _candidate_urls(
-    ip: str, port: int, brand: str
-) -> list[str]:
+def _candidate_urls(ip: str, port: int, brand: str) -> list[str]:
     paths = RTSP_PATHS.get(brand, []) + RTSP_PATHS["_generic"]
     return [f"rtsp://{ip}:{port}{p}" for p in paths]
 
@@ -109,9 +100,7 @@ def _candidate_urls(
 # Uses list-form subprocess (not shell=True) to prevent shell
 # injection. Inputs are constrained to a validated IP address
 # and an integer port by callers.
-def _ffmpeg_cmd(
-    rtsp_url: str, playlist: str, seg_pattern: str
-) -> list[str]:
+def _ffmpeg_cmd(rtsp_url: str, playlist: str, seg_pattern: str) -> list[str]:
     return [
         "ffmpeg",
         "-loglevel",
@@ -146,9 +135,7 @@ def _wait_for_segment(tmpdir: str) -> bool:
     """Block until an .ts segment exists or timeout expires."""
     deadline = time.monotonic() + SEGMENT_READY_TIMEOUT
     while time.monotonic() < deadline:
-        if any(
-            f.endswith(".ts") for f in os.listdir(tmpdir)
-        ):
+        if any(f.endswith(".ts") for f in os.listdir(tmpdir)):
             return True
         time.sleep(SEGMENT_POLL_INTERVAL)
     return False
@@ -181,10 +168,7 @@ def _probe_url(rtsp_url: str) -> bool:
             capture_output=True,
             timeout=3,
         )
-        return (
-            result.returncode == 0
-            and b"video" in result.stdout
-        )
+        return result.returncode == 0 and b"video" in result.stdout
     except subprocess.TimeoutExpired, FileNotFoundError:
         return False
 
@@ -219,9 +203,7 @@ def start_stream(
     URL responded.
     """
     if _reject_private_ip(ip):
-        log.warning(
-            "Rejected private IP in stream_manager: %s", ip
-        )
+        log.warning("Rejected private IP in stream_manager: %s", ip)
         return None
 
     with _lock:
@@ -280,9 +262,7 @@ def start_stream(
     )
 
     if not _wait_for_segment(tmpdir):
-        log.warning(
-            "ffmpeg produced no segments for %s", rtsp_url
-        )
+        log.warning("ffmpeg produced no segments for %s", rtsp_url)
         proc.kill()
         shutil.rmtree(tmpdir, ignore_errors=True)
         return None
@@ -301,9 +281,7 @@ def start_stream(
     return stream_id
 
 
-def get_stream_file(
-    stream_id: str, filename: str
-) -> bytes | None:
+def get_stream_file(stream_id: str, filename: str) -> bytes | None:
     """
     Return the raw bytes of an HLS file for the given stream,
     or None. Updates last_access for idle-timeout tracking.

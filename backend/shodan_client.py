@@ -29,15 +29,11 @@ SCREENSHOT_QUERY = "has_screenshot:true port:80,8080,8081,8888"
 #   consumer/hobbyist tools that ship with auth disabled.
 #   All bare-string terms — Shodan rejects OR across mixed filter types
 #   (e.g. http.title: mixed with unqualified strings).
-OPEN_SOFTWARE_QUERY = (
-    '"MJPG-Streamer" OR "yawcam" OR "webcamXP" OR "webcam 7"'
-)
+OPEN_SOFTWARE_QUERY = '"MJPG-Streamer" OR "yawcam" OR "webcamXP" OR "webcam 7"'
 
 # Query C — RTSP, excluding enterprise brands that are almost always
 #   password-protected in real deployments.
-RTSP_QUERY = (
-    "port:554,8554 -product:hikvision -product:dahua -product:axis"
-)
+RTSP_QUERY = "port:554,8554 -product:hikvision -product:dahua -product:axis"
 
 # Fields to request from Shodan.
 # `screenshot` includes base64-encoded image data Shodan captured at
@@ -109,9 +105,7 @@ SNAPSHOT_PATHS = {
 MILES_TO_KM = 1.60934
 
 
-def _haversine_km(
-    lat1: float, lng1: float, lat2: float, lng2: float
-) -> float:
+def _haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     """Great-circle distance in kilometres between two points."""
     r = 6371.0
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
@@ -119,8 +113,7 @@ def _haversine_km(
     dlam = math.radians(lng2 - lng1)
     a = (
         math.sin(dphi / 2) ** 2
-        + math.cos(phi1) * math.cos(phi2)
-        * math.sin(dlam / 2) ** 2
+        + math.cos(phi1) * math.cos(phi2) * math.sin(dlam / 2) ** 2
     )
     return 2 * r * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
@@ -155,17 +148,13 @@ def _build_thumbnail_url(
     port_str = "" if port in (80, 443) else f":{port}"
     base = f"{scheme}://{ip}{port_str}"
 
-    paths = (
-        SNAPSHOT_PATHS.get(brand, []) + SNAPSHOT_PATHS["_generic"]
-    )
+    paths = SNAPSHOT_PATHS.get(brand, []) + SNAPSHOT_PATHS["_generic"]
     if not paths:
         return None
     return f"{base}{paths[0]}"
 
 
-def _parse_match(
-    match: dict, center_lat: float, center_lng: float
-) -> dict:
+def _parse_match(match: dict, center_lat: float, center_lng: float) -> dict:
     """Extract and normalise relevant fields from a Shodan match."""
     loc = match.get("location") or {}
     cam_lat = loc.get("latitude")
@@ -174,9 +163,7 @@ def _parse_match(
     distance_km: float | None = None
     distance_miles: float | None = None
     if cam_lat is not None and cam_lng is not None:
-        distance_km = _haversine_km(
-            center_lat, center_lng, cam_lat, cam_lng
-        )
+        distance_km = _haversine_km(center_lat, center_lng, cam_lat, cam_lng)
         distance_miles = distance_km / MILES_TO_KM
 
     ip = match.get("ip_str", "")
@@ -207,14 +194,10 @@ def _parse_match(
         "city": loc.get("city") or "",
         "country": loc.get("country_name") or "",
         "distance_km": (
-            round(distance_km, 2)
-            if distance_km is not None
-            else None
+            round(distance_km, 2) if distance_km is not None else None
         ),
         "distance_miles": (
-            round(distance_miles, 2)
-            if distance_miles is not None
-            else None
+            round(distance_miles, 2) if distance_miles is not None else None
         ),
         "screenshot_b64": screenshot_b64,
         "screenshot_mime": screenshot_mime,
@@ -242,9 +225,7 @@ class ShodanClient:
         self._key = api_key
         self._masked_key = _mask_key(api_key)
 
-    def _run_single_query(
-        self, query: str
-    ) -> list[dict[str, object]]:
+    def _run_single_query(self, query: str) -> list[dict[str, object]]:
         """Execute one Shodan query and return raw matches."""
         log.info("Shodan query: %s", query)
         params = {
@@ -256,9 +237,7 @@ class ShodanClient:
         }
         try:
             with httpx.Client(timeout=20.0) as client:
-                resp = client.get(
-                    SHODAN_SEARCH_URL, params=params
-                )
+                resp = client.get(SHODAN_SEARCH_URL, params=params)
                 resp.raise_for_status()
             try:
                 payload = resp.json()
@@ -268,9 +247,7 @@ class ShodanClient:
                     query,
                 )
                 return []
-            batch: list[dict[str, object]] = payload.get(
-                "matches", []
-            )
+            batch: list[dict[str, object]] = payload.get("matches", [])
             log.info(
                 "Shodan query '%s' returned %d matches (key: %s)",
                 query,
@@ -298,20 +275,15 @@ class ShodanClient:
             )
             return []
 
-    def _run_queries(
-        self, queries: list[str]
-    ) -> list[dict[str, object]]:
+    def _run_queries(self, queries: list[str]) -> list[dict[str, object]]:
         """Execute Shodan queries concurrently and return combined matches."""
         if len(queries) == 1:
             return self._run_single_query(queries[0])
 
         matches: list[dict[str, object]] = []
-        with ThreadPoolExecutor(
-            max_workers=len(queries)
-        ) as pool:
+        with ThreadPoolExecutor(max_workers=len(queries)) as pool:
             futures = {
-                pool.submit(self._run_single_query, q): q
-                for q in queries
+                pool.submit(self._run_single_query, q): q for q in queries
             }
             for future in as_completed(futures):
                 matches.extend(future.result())
@@ -346,9 +318,7 @@ class ShodanClient:
             List of camera metadata dicts.
         """
         radius_km = radius_miles * MILES_TO_KM
-        geo_filter = (
-            f"geo:{lat:.4f},{lng:.4f},{max(1, int(radius_km))}"
-        )
+        geo_filter = f"geo:{lat:.4f},{lng:.4f},{max(1, int(radius_km))}"
 
         active_queries = (
             base_queries
@@ -359,9 +329,7 @@ class ShodanClient:
                 RTSP_QUERY,
             ]
         )
-        geo_queries = [
-            f"{q} {geo_filter}" for q in active_queries
-        ]
+        geo_queries = [f"{q} {geo_filter}" for q in active_queries]
 
         matches = self._run_queries(geo_queries)
 
@@ -371,8 +339,7 @@ class ShodanClient:
             fallback_base = active_queries[0]
             fallback = f'{fallback_base} city:"{city_hint}"'
             log.info(
-                "geo: returned 0 results, "
-                "trying city fallback: %s",
+                "geo: returned 0 results, trying city fallback: %s",
                 fallback,
             )
             matches = self._run_queries([fallback])

@@ -29,16 +29,12 @@ class TestGeocodeLocation:
         assert "New York" in result["display_name"]
 
     def test_empty_results(self):
-        respx.get(NOMINATIM_URL).mock(
-            return_value=httpx.Response(200, json=[])
-        )
+        respx.get(NOMINATIM_URL).mock(return_value=httpx.Response(200, json=[]))
         result = geocode_location("xyznonexistent")
         assert result is None
 
     def test_http_error(self):
-        respx.get(NOMINATIM_URL).mock(
-            return_value=httpx.Response(500)
-        )
+        respx.get(NOMINATIM_URL).mock(return_value=httpx.Response(500))
         result = geocode_location("New York")
         assert result is None
 

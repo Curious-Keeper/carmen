@@ -8,8 +8,7 @@ class TestStreamIdValidation:
 
     def test_valid_stream_id(self, client):
         resp = client.get(
-            "/api/stream/abcdef1234567890abcdef1234567890"
-            "/playlist.m3u8"
+            "/api/stream/abcdef1234567890abcdef1234567890/playlist.m3u8"
         )
         # 404 = valid format but stream doesn't exist
         assert resp.status_code == 404
@@ -25,15 +24,11 @@ class TestStreamIdValidation:
         ],
     )
     def test_invalid_stream_id_get(self, client, stream_id):
-        resp = client.get(
-            f"/api/stream/{stream_id}/playlist.m3u8"
-        )
+        resp = client.get(f"/api/stream/{stream_id}/playlist.m3u8")
         assert resp.status_code == 400
 
     def test_path_traversal_rejected(self, client):
-        resp = client.get(
-            "/api/stream/../../../etc/passwd/playlist.m3u8"
-        )
+        resp = client.get("/api/stream/../../../etc/passwd/playlist.m3u8")
         # Flask router rejects this before our handler
         assert resp.status_code in (400, 404)
 
@@ -78,23 +73,17 @@ class TestLocationValidation:
 class TestPortValidation:
     def test_proxy_invalid_port_string(self, client, monkeypatch):
         monkeypatch.setenv("PROXY_ENABLED", "true")
-        resp = client.get(
-            "/api/proxy/image?ip=8.8.8.8&port=abc"
-        )
+        resp = client.get("/api/proxy/image?ip=8.8.8.8&port=abc")
         assert resp.status_code == 400
 
     def test_proxy_port_zero(self, client, monkeypatch):
         monkeypatch.setenv("PROXY_ENABLED", "true")
-        resp = client.get(
-            "/api/proxy/image?ip=8.8.8.8&port=0"
-        )
+        resp = client.get("/api/proxy/image?ip=8.8.8.8&port=0")
         assert resp.status_code == 400
 
     def test_proxy_port_too_high(self, client, monkeypatch):
         monkeypatch.setenv("PROXY_ENABLED", "true")
-        resp = client.get(
-            "/api/proxy/image?ip=8.8.8.8&port=70000"
-        )
+        resp = client.get("/api/proxy/image?ip=8.8.8.8&port=70000")
         assert resp.status_code == 400
 
 

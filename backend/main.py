@@ -41,18 +41,14 @@ app = Flask(
 )
 CORS(
     app,
-    origins=os.environ.get(
-        "ALLOWED_ORIGIN", "http://localhost:3000"
-    ),
+    origins=os.environ.get("ALLOWED_ORIGIN", "http://localhost:3000"),
 )
 app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024  # 1 MB
 limiter = Limiter(
     get_remote_address,
     app=app,
     default_limits=[],
-    storage_uri=os.environ.get(
-        "RATE_LIMIT_STORAGE_URI", "memory://"
-    ),
+    storage_uri=os.environ.get("RATE_LIMIT_STORAGE_URI", "memory://"),
 )
 
 _STREAM_ID_RE = re.compile(r"^[0-9a-f]{32}$")
@@ -62,10 +58,7 @@ _STREAM_ID_RE = re.compile(r"^[0-9a-f]{32}$")
 def _security_headers(response: Response) -> Response:
     # Script hash is for the inline <script> in index.html.
     # Update the hash if that block changes.
-    _script_hash = (
-        "'sha256-lnTF2PGyP3c5UBstXI0ZR6aUC"
-        "/1ZRNI8jf1Qb62i3q0='"
-    )
+    _script_hash = "'sha256-lnTF2PGyP3c5UBstXI0ZR6aUC/1ZRNI8jf1Qb62i3q0='"
     _cf = "https://static.cloudflareinsights.com"
     _carto = "https://*.basemaps.cartocdn.com"
     _cdn = "https://unpkg.com https://cdn.jsdelivr.net"
@@ -80,9 +73,7 @@ def _security_headers(response: Response) -> Response:
     )
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
-    response.headers["X-Robots-Tag"] = (
-        "noindex, nofollow, noarchive, nosnippet"
-    )
+    response.headers["X-Robots-Tag"] = "noindex, nofollow, noarchive, nosnippet"
     origin = os.environ.get("ALLOWED_ORIGIN", "")
     if origin.startswith("https://"):
         response.headers["Strict-Transport-Security"] = (
@@ -127,20 +118,13 @@ def search_cameras():
         max_results = int(body.get("max_results", 100))
     except ValueError, TypeError:
         return jsonify(
-            error=(
-                "'radius_miles' and 'max_results' "
-                "must be numbers."
-            )
+            error=("'radius_miles' and 'max_results' must be numbers.")
         ), 400
 
     if not location or len(location) < 2 or len(location) > 200:
-        return jsonify(
-            error="'location' must be 2–200 characters."
-        ), 400
+        return jsonify(error="'location' must be 2–200 characters."), 400
     if not (0.5 <= radius_miles <= 50.0):
-        return jsonify(
-            error="'radius_miles' must be between 0.5 and 50."
-        ), 400
+        return jsonify(error="'radius_miles' must be between 0.5 and 50."), 400
     max_results = max(10, min(200, max_results))
 
     # Optional: caller may supply up to 5 custom base query
@@ -149,15 +133,11 @@ def search_cameras():
     queries_raw = body.get("queries")
     if queries_raw is not None:
         if not isinstance(queries_raw, list):
-            return jsonify(
-                error="'queries' must be a list of strings."
-            ), 400
+            return jsonify(error="'queries' must be a list of strings."), 400
         cleaned: list[str] = []
         for q in queries_raw[:5]:
             if not isinstance(q, str):
-                return jsonify(
-                    error="Each query must be a string."
-                ), 400
+                return jsonify(error="Each query must be a string."), 400
             q = q.strip()
             if not q:
                 continue
@@ -194,9 +174,7 @@ def search_cameras():
     except httpx.HTTPStatusError as exc:
         status = exc.response.status_code
         if status == 401:
-            return jsonify(
-                error="Invalid Shodan API key."
-            ), 502
+            return jsonify(error="Invalid Shodan API key."), 502
         if status == 403:
             return jsonify(
                 error=(
@@ -209,18 +187,11 @@ def search_cameras():
             ), 402
         if status == 429:
             return jsonify(
-                error=(
-                    "Shodan rate limit reached. "
-                    "Try again shortly."
-                )
+                error=("Shodan rate limit reached. Try again shortly.")
             ), 429
-        return jsonify(
-            error=f"Shodan API error: {status}"
-        ), 502
+        return jsonify(error=f"Shodan API error: {status}"), 502
     except httpx.HTTPError as exc:
-        return jsonify(
-            error=f"Shodan request failed: {exc}"
-        ), 502
+        return jsonify(error=f"Shodan request failed: {exc}"), 502
 
     return jsonify(
         center=coords,
@@ -232,10 +203,7 @@ def search_cameras():
 
 
 def _proxy_enabled() -> bool:
-    return (
-        os.environ.get("PROXY_ENABLED", "false").lower()
-        == "true"
-    )
+    return os.environ.get("PROXY_ENABLED", "false").lower() == "true"
 
 
 @app.get("/api/proxy/image")
@@ -276,10 +244,7 @@ def proxy_image():
     port_str = "" if port in (80, 443) else f":{port}"
     base = f"{scheme}://{ip}{port_str}"
 
-    paths = (
-        SNAPSHOT_PATHS.get(brand, [])
-        + SNAPSHOT_PATHS["_generic"]
-    )
+    paths = SNAPSHOT_PATHS.get(brand, []) + SNAPSHOT_PATHS["_generic"]
 
     resp = _try_snapshot_paths(base, paths)
 
@@ -288,15 +253,10 @@ def proxy_image():
 
     if resp.status_code in (401, 403, 407):
         return jsonify(
-            error=(
-                "Stream requires authentication "
-                "— not displayed."
-            )
+            error=("Stream requires authentication — not displayed.")
         ), 403
 
-    content_type = resp.headers.get(
-        "content-type", "image/jpeg"
-    )
+    content_type = resp.headers.get("content-type", "image/jpeg")
     return Response(
         resp.content,
         content_type=content_type,
@@ -304,9 +264,7 @@ def proxy_image():
     )
 
 
-def _try_snapshot_paths(
-    base: str, paths: list[str]
-) -> httpx.Response | None:
+def _try_snapshot_paths(base: str, paths: list[str]) -> httpx.Response | None:
     """Try snapshot paths and return the first usable response."""
     with httpx.Client(
         timeout=4.0,
@@ -360,9 +318,7 @@ def stream_start():
     except ValueError as exc:
         return jsonify(error=str(exc)), 400
 
-    stream_id = start_stream(
-        ip, port, brand, request.remote_addr or ""
-    )
+    stream_id = start_stream(ip, port, brand, request.remote_addr or "")
     if stream_id is None:
         return jsonify(
             error="Could not connect to RTSP stream. "
@@ -380,23 +336,14 @@ def stream_file(stream_id: str, filename: str):
     if not _STREAM_ID_RE.match(stream_id):
         return jsonify(error="Invalid stream ID."), 400
 
-    if (
-        not filename.replace(".", "")
-        .replace("-", "")
-        .isalnum()
-    ):
+    if not filename.replace(".", "").replace("-", "").isalnum():
         return jsonify(error="Invalid filename."), 400
-    if not (
-        filename.endswith(".m3u8")
-        or filename.endswith(".ts")
-    ):
+    if not (filename.endswith(".m3u8") or filename.endswith(".ts")):
         return jsonify(error="Invalid file type."), 400
 
     data = get_stream_file(stream_id, filename)
     if data is None:
-        return jsonify(
-            error="Stream or segment not found."
-        ), 404
+        return jsonify(error="Stream or segment not found."), 404
 
     mime = (
         "application/vnd.apple.mpegurl"
@@ -424,9 +371,7 @@ def stream_stop(stream_id: str):
 
 @app.get("/api/health")
 def health():
-    return jsonify(
-        status="ok", proxy_enabled=_proxy_enabled()
-    )
+    return jsonify(status="ok", proxy_enabled=_proxy_enabled())
 
 
 # -------------------------------------------------------------------
@@ -446,16 +391,11 @@ def _reject_private_ip(ip: str) -> None:
     try:
         addr = ipaddress.ip_address(ip)
     except ValueError:
-        raise ValueError(
-            "Only IP addresses are accepted."
-        ) from None
+        raise ValueError("Only IP addresses are accepted.") from None
 
     # Unwrap IPv4-mapped IPv6 (e.g. ::ffff:127.0.0.1) so the
     # private/loopback checks below apply to the inner IPv4.
-    if (
-        isinstance(addr, ipaddress.IPv6Address)
-        and addr.ipv4_mapped is not None
-    ):
+    if isinstance(addr, ipaddress.IPv6Address) and addr.ipv4_mapped is not None:
         addr = addr.ipv4_mapped
 
     if (
@@ -474,7 +414,5 @@ def _reject_private_ip(ip: str) -> None:
 # -------------------------------------------------------------------
 
 if __name__ == "__main__":
-    debug = (
-        os.environ.get("FLASK_DEBUG", "false").lower() == "true"
-    )
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
     app.run(host="0.0.0.0", port=8000, debug=debug)
