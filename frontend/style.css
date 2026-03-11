@@ -69,6 +69,16 @@ header {
     color: #e0e0e0;
 }
 
+.logo-link {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    text-decoration: none;
+}
+
+.logo-link:hover { text-decoration: none; }
+.logo-link:hover .logo { color: #fff; }
+
 .logo {
     font-size: 20px;
     font-weight: 700;
@@ -836,12 +846,36 @@ header {
 /* ------------------------------------------------------------------ */
 footer {
     border-top: 1px solid var(--border);
-    padding: 12px 0;
+    padding: 14px 0;
     font-size: 11px;
     color: var(--text-muted);
     margin-top: auto;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.footer-top {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.footer-brand {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #999;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.footer-brand span { color: var(--accent); }
+.footer-brand:hover { color: #ccc; text-decoration: none; }
+
+.footer-sep { color: var(--border2); }
+
+.footer-bottom {
+    color: var(--text-muted);
 }
 
 /* ================================================================== */
@@ -900,7 +934,7 @@ footer {
         gap: 8px;
     }
 
-    footer {
+    .footer-top {
         flex-direction: column;
         gap: 4px;
     }

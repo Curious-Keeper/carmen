@@ -39,10 +39,14 @@ app = Flask(
     static_folder=_frontend_dir,
     static_url_path="",
 )
-CORS(
-    app,
-    origins=os.environ.get("ALLOWED_ORIGIN", "http://localhost:3000"),
-)
+
+
+def _allowed_origins() -> list[str]:
+    env = os.environ.get("ALLOWED_ORIGIN", "http://localhost:3000")
+    return [o.strip() for o in env.split(",") if o.strip()]
+
+
+CORS(app, origins=_allowed_origins())
 app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024  # 1 MB
 limiter = Limiter(
     get_remote_address,
@@ -71,8 +75,8 @@ def _security_headers(response: Response) -> Response:
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Robots-Tag"] = "noindex, nofollow, noarchive, nosnippet"
-    origin = os.environ.get("ALLOWED_ORIGIN", "")
-    if origin.startswith("https://"):
+    origins = _allowed_origins()
+    if any(o.startswith("https://") for o in origins):
         response.headers["Strict-Transport-Security"] = (
             "max-age=31536000; includeSubDomains"
         )
