@@ -1,0 +1,48 @@
+/* ------------------------------------------------------------------ */
+/* OpenWatch shared brand tokens — copy to each tool repo              */
+/* ------------------------------------------------------------------ */
+@import url(
+    'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap'
+);
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /* Surfaces */
+    --bg:        #080808;
+    --surface:   #0f0f0f;
+    --surface2:  #161616;
+    --border:    #222;
+    --border2:   #2a2a2a;
+    /* Text */
+    --text:      #c8c8c8;
+    --text-dim:  #999;
+    --text-muted:#777;
+    /* Status */
+    --green:     #1a7a1a;
+    --green-lit: #22cc22;
+    --warn:      #997700;
+    --warn-lit:  #ccaa00;
+    /* Font */
+    --mono:      'JetBrains Mono', 'Fira Code',
+                 'Cascadia Code', 'Courier New', monospace;
+    /* Accent — override per tool */
+    --accent:    #cc2200;
+    --accent2:   #991a00;
+}
+
+html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }

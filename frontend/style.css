@@ -1,38 +1,4 @@
-/* ------------------------------------------------------------------ */
-/* Reset & base                                                         */
-/* ------------------------------------------------------------------ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-    --bg:        #080808;
-    --surface:   #0f0f0f;
-    --surface2:  #161616;
-    --border:    #222;
-    --border2:   #2a2a2a;
-    --text:      #c8c8c8;
-    --text-dim:  #666;
-    --text-muted:#444;
-    --accent:    #cc2200;
-    --accent2:   #991a00;
-    --green:     #1a7a1a;
-    --green-lit: #22cc22;
-    --warn:      #997700;
-    --warn-lit:  #ccaa00;
-    --mono:      'JetBrains Mono', 'Fira Code', 'Cascadia Code',
-                 'Courier New', monospace;
-}
-
-html, body {
-    height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.5;
-}
-
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
+/* Base tokens loaded from openwatch-theme.css */
 
 /* ------------------------------------------------------------------ */
 /* Layout                                                               */
@@ -47,55 +13,69 @@ a:hover { text-decoration: underline; }
 }
 
 /* ------------------------------------------------------------------ */
-/* Header                                                               */
+/* Header — stacked brand layout                                       */
 /* ------------------------------------------------------------------ */
 header {
     border-bottom: 1px solid var(--border);
     padding: 18px 0 14px;
     display: flex;
-    align-items: baseline;
-    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.github-link {
-    margin-left: auto;
-    color: var(--text-dim);
-    transition: color 0.2s;
-    align-self: center;
-    line-height: 0;
-}
-
-.github-link:hover {
-    color: #e0e0e0;
-}
-
-.logo-link {
+.header-brand {
     display: flex;
-    align-items: baseline;
-    gap: 16px;
-    text-decoration: none;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.logo-link:hover { text-decoration: none; }
-.logo-link:hover .logo { color: #fff; }
-
-.logo {
+.brand-link {
     font-size: 20px;
     font-weight: 700;
     letter-spacing: 0.08em;
     color: #e0e0e0;
+    text-decoration: none;
 }
 
-.logo span {
+.brand-link:hover { text-decoration: none; color: var(--accent); }
+.brand-link span  { color: var(--accent); }
+
+.tool-name {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+}
+
+.tool-name em {
+    font-style: normal;
     color: var(--accent);
 }
 
-.logo-sub {
+/* Cross-tool nav strip */
+.tool-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.04em;
     text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
+
+.tool-nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.tool-nav a:hover  { color: var(--text); text-decoration: none; }
+.tool-nav a.active { color: var(--accent); }
+
+.github-link {
+    color: var(--text-dim);
+    transition: color 0.2s;
+    line-height: 0;
+}
+
+.github-link:hover { color: #e0e0e0; text-decoration: none; }
 
 /* ------------------------------------------------------------------ */
 /* Disclaimer banner                                                    */
@@ -107,12 +87,12 @@ header {
     padding: 8px 12px;
     margin: 12px 0;
     font-size: 11px;
-    color: #a06040;
+    color: #c07850;
     line-height: 1.6;
 }
 
 .disclaimer strong {
-    color: #cc6633;
+    color: #e08050;
 }
 
 /* ------------------------------------------------------------------ */
@@ -151,7 +131,7 @@ header {
 }
 
 .apikey-input::placeholder { color: var(--text-muted); }
-.apikey-input:focus { border-color: #444; }
+.apikey-input:focus { border-color: var(--text-muted); }
 
 .apikey-link {
     font-size: 11px;
@@ -200,7 +180,7 @@ header {
 }
 
 .search-input:focus {
-    border-color: #444;
+    border-color: var(--text-muted);
 }
 
 .radius-select {
@@ -315,7 +295,7 @@ header {
     line-height: 1.4;
 }
 
-.adv-input:focus { border-color: #444; }
+.adv-input:focus { border-color: var(--text-muted); }
 
 .adv-input.modified { border-color: var(--warn); }
 
@@ -622,7 +602,7 @@ header {
 
 .card-ip {
     font-size: 11px;
-    color: #555;
+    color: var(--text-muted);
     font-family: var(--mono);
 }
 
@@ -654,11 +634,11 @@ header {
 /* ------------------------------------------------------------------ */
 .card-port-hint {
     font-size: 9px;
-    color: #446;
+    color: #668;
 }
 
 .card-transport {
-    color: #444;
+    color: var(--text-muted);
 }
 
 .hidden {
@@ -721,7 +701,7 @@ header {
 
 .stream-load-btn .play-icon {
     font-size: 22px;
-    color: #336;
+    color: #446;
     transition: color 0.15s;
 }
 
@@ -925,7 +905,12 @@ footer {
 
     header {
         flex-wrap: wrap;
-        gap: 4px 16px;
+        gap: 8px;
+    }
+
+    .tool-nav {
+        gap: 10px;
+        font-size: 10px;
     }
 
     .grid-header {
@@ -948,8 +933,8 @@ footer {
 
     .layout { padding: 0 10px; }
 
-    .logo { font-size: 17px; }
-    .logo-sub { font-size: 10px; }
+    .brand-link { font-size: 17px; }
+    .tool-name { font-size: 10px; }
 
     #camera-grid {
         grid-template-columns: 1fr;
