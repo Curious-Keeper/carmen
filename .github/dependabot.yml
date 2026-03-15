@@ -1,0 +1,40 @@
+version: 2
+updates:
+    - package-ecosystem: "pip"
+      directory: "/backend"
+      schedule:
+          interval: "weekly"
+          day: "monday"
+      reviewers:
+          - "Curious-Keeper"
+      labels:
+          - "dependencies"
+          - "python"
+      commit-message:
+          prefix: "deps"
+
+    - package-ecosystem: "docker"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+          day: "monday"
+      reviewers:
+          - "Curious-Keeper"
+      labels:
+          - "dependencies"
+          - "docker"
+      commit-message:
+          prefix: "deps"
+
+    - package-ecosystem: "github-actions"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+          day: "monday"
+      reviewers:
+          - "Curious-Keeper"
+      labels:
+          - "dependencies"
+          - "ci"
+      commit-message:
+          prefix: "deps"
