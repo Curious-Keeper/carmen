@@ -4,4 +4,4 @@ flask-limiter==3.8.0
 gevent==25.9.1
 httpx==0.27.2
 python-dotenv==1.0.1
-redis==5.2.1
+redis==7.3.0
