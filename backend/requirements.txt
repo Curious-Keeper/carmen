@@ -3,5 +3,5 @@ flask-cors==6.0.2
 flask-limiter==4.1.1
 gevent==26.4.0
 httpx==0.28.1
-python-dotenv==1.2.2
+python-dotenv==1.2.4
 redis==7.4.0
